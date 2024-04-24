@@ -1,0 +1,29 @@
+import robocode.*;
+
+public class MyDefensiveRobot extends AdvancedRobot {
+
+    public void run() {
+        setBodyColor(Color.pink); // Set body color to pink (if supported)
+
+        while (true) {
+            // Move forward at a moderate speed
+            ahead(50);
+
+            // Turn randomly left or right to avoid getting hit
+            if (Math.random() > 0.5) {
+                turnLeft(45);
+            } else {
+                turnRight(45);
+            }
+
+            // Look for nearby robots
+            turnGunRight(360);
+        }
+    }
+
+    public void onScannedRobot(ScannedRobotEvent e) {
+        // If we see an enemy, fire back and move in the opposite direction
+        fire(1);
+        back(e.getDistance() / 2); // Move back half the enemy distance
+    }
+}

@@ -1,0 +1,66 @@
+import robocode.*;
+
+public class MyDefensiveRobot extends AdvancedRobot {
+    
+    boolean movingForward;
+    
+    public void run() {
+        // Set robot colors
+        setBodyColor(java.awt.Color.blue);
+        setGunColor(java.awt.Color.black);
+        setRadarColor(java.awt.Color.red);
+        setBulletColor(java.awt.Color.green);
+        setScanColor(java.awt.Color.yellow);
+        
+        // Initialize movingForward to true
+        movingForward = true;
+        
+        // Loop to move and scan for enemies
+        while (true) {
+            if (movingForward) {
+                setAhead(100); // Move forward 100 pixels
+            } else {
+                setBack(100); // Move backward 100 pixels
+            }
+            execute();
+            // Turn gun to scan
+            turnRadarRight(360);
+        }
+    }
+    
+    public void onScannedRobot(ScannedRobotEvent e) {
+        // Calculate enemy bearing
+        double enemyBearing = getHeadingRadians() + e.getBearingRadians();
+        // Calculate enemy's absolute bearing
+        double enemyAbsoluteBearing = getHeadingRadians() + e.getBearingRadians();
+        
+        // Turn gun to target the enemy
+        turnGunRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - getGunHeadingRadians()));
+        
+        // If enemy is close, fire with maximum power
+        if (e.getDistance() < 200) {
+            setFire(3);
+        } else {
+            // Otherwise, fire with reduced power
+            setFire(1);
+        }
+        
+        // If the enemy is in front of us, move backward
+        if (Math.abs(e.getBearing()) < 90) {
+            movingForward = false;
+        } else {
+            // Otherwise, move forward
+            movingForward = true;
+        }
+    }
+    
+    public void onHitByBullet(HitByBulletEvent e) {
+        // If hit by a bullet, turn perpendicular to the bullet's bearing
+        turnRight(e.getBearing() + 90);
+    }
+    
+    public void onHitWall(HitWallEvent e) {
+        // If hit a wall, turn away from it
+        turnRight(90);
+    }
+}
